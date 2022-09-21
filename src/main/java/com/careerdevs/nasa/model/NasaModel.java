@@ -25,7 +25,6 @@ public class NasaModel {
     private String title;
     private String url;
 
-    public void removeId() { id = 0; }
     public int getId() { return id; }
 
     public String getCopyright() {

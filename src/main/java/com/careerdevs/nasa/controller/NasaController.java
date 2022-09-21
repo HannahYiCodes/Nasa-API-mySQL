@@ -2,6 +2,7 @@ package com.careerdevs.nasa.controller;
 
 import com.careerdevs.nasa.model.NasaModel;
 import com.careerdevs.nasa.repository.NasaRepository;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -12,8 +13,10 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-// post by date(s)
-// range of values - 6month? change the year
+// TODO: DeleteMapping or All, DeleteMapping by ID, PutMapping
+// post+get by date(s)
+// post range of values - 6month? change the year
+
 @RestController
 @RequestMapping("/api/nasa")
 @CrossOrigin(origins = "http://localhost:4900") // FRONTEND SERVER
@@ -48,14 +51,14 @@ public class NasaController {
         }
     }
 
-    @PostMapping("/sql")
-    public ResponseEntity<?> uploadToSQL(RestTemplate restTemplate) {
+    @PostMapping("/sql/{count}")
+    public ResponseEntity<?> uploadToSQL(RestTemplate restTemplate, @PathVariable String count) {
         try {
             String key = env.getProperty("APOD_KEY", "DEMO_KEY");
-            String url = nasaApodEndpoint + key;
+            String urlCount = nasaApodEndpoint + key + "&count=" + count;
 
             // retrieve data from JPH API and save to array of UserModels
-            NasaModel[] allDatas = restTemplate.getForObject(url, NasaModel[].class);
+            NasaModel[] allDatas = restTemplate.getForObject(urlCount, NasaModel[].class);
 
             // checks if allUsers is present, otherwise exception will be thrown
             assert allDatas != null;
@@ -72,6 +75,7 @@ public class NasaController {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
+
     @PostMapping("/sql/all")
     public ResponseEntity<?> uploadAllDataToSQL(RestTemplate restTemplate) {
         try {
@@ -79,7 +83,7 @@ public class NasaController {
             String url = nasaApodEndpoint + key;
 
             // retrieve data from JPH API and save to array of UserModels
-            NasaModel allDatas = restTemplate.getForObject(url, NasaModel.class);
+            NasaModel[] allDatas = restTemplate.getForObject(url, NasaModel[].class);
 
             // checks if allUsers is present, otherwise exception will be thrown
             assert allDatas != null;
@@ -90,7 +94,7 @@ public class NasaController {
 //            }
 
             // saves users to database and updates each user's id field to the saved database ID
-            nasaRepository.save(allDatas);
+            nasaRepository.saveAll(Arrays.asList(allDatas));
 
             // response with data that was just saved to the database
             return ResponseEntity.ok(allDatas);
@@ -100,7 +104,6 @@ public class NasaController {
             System.out.println(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
-
     }
 
 }
