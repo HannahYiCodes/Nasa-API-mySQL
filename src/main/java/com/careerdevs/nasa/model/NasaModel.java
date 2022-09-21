@@ -12,21 +12,25 @@ public class NasaModel {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false)
     private int id;
-    private String date;
-    private String explanation;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String hdurl;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String copyright;
+    private String date;
+    @Column(length = 10000)
+    private String explanation;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String hdurl;
     private String media_type;
     private String service_version;
     private String title;
     private String url;
 
-
     public void removeId() { id = 0; }
     public int getId() { return id; }
+
+    public String getCopyright() {
+        return copyright;
+    }
 
     public String getDate() {
         return date;
@@ -38,10 +42,6 @@ public class NasaModel {
 
     public String getHdurl() {
         return hdurl;
-    }
-
-    public String getCopyright() {
-        return copyright;
     }
 
     public String getMedia_type() {
